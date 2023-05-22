@@ -8,7 +8,7 @@ part of 'character.dart';
 
 Character _$CharacterFromJson(Map<String, dynamic> json) => Character(
       json['name'] as String,
-      json['i'] as String,
+      json['image'] as String,
     );
 
 Map<String, dynamic> _$CharacterToJson(Character instance) => <String, dynamic>{

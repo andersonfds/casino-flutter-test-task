@@ -4,10 +4,13 @@ part 'character.g.dart';
 
 @JsonSerializable()
 class Character {
+  @JsonKey(defaultValue: '')
   final String name;
+
+  @JsonKey(defaultValue: '')
   final String image;
 
-  Character(this.name, this.image);
+  const Character(this.name, this.image);
 
   factory Character.fromJson(Map<String, dynamic> json) =>
       _$CharacterFromJson(json);
