@@ -36,7 +36,7 @@ class NoInternetWidget extends StatelessWidget {
               SizedBox(height: 10),
               ElevatedButton.icon(
                 onPressed: onRetry,
-                label: Text('Retry'),
+                label: Text('Try again'),
                 icon: Icon(Icons.refresh_rounded),
               ),
               SizedBox(height: 40),

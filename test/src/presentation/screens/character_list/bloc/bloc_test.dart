@@ -2,14 +2,13 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:casino_test/src/data/models/paginated.dart';
 import 'package:casino_test/src/data/providers/network_check_provider.dart';
 import 'package:casino_test/src/data/repository/characters_repository.dart';
-import 'package:casino_test/src/presentation/bloc/enum/main_status.dart';
-import 'package:casino_test/src/presentation/bloc/main_bloc.dart';
-import 'package:casino_test/src/presentation/bloc/main_event.dart';
-import 'package:casino_test/src/presentation/bloc/main_state.dart';
+import 'package:casino_test/src/presentation/screens/character_list/bloc/bloc.dart';
+import 'package:casino_test/src/presentation/screens/character_list/bloc/event.dart';
+import 'package:casino_test/src/presentation/screens/character_list/bloc/state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../helpers/fixture.dart';
+import '../../../../../helpers/fixture.dart';
 
 class MockCharactersRepository extends Mock implements CharactersRepository {}
 
@@ -43,14 +42,14 @@ void main() {
           );
         });
 
-        blocTest<MainPageBloc, MainPageState>(
+        blocTest<CharacterListBloc, CharacterListPageState>(
           'Then should fetch a page',
-          build: () => MainPageBloc(
-            InitialLoadingPageState(),
+          build: () => CharacterListBloc(
+            initialCharacterListPageState,
             repository,
             networkChecker,
           ),
-          act: (bloc) => bloc.add(MainPageFetch(1)),
+          act: (bloc) => bloc.add(CharacterListFetchEvent.initial()),
           verify: (bloc) {
             final blocState = bloc.state.copyWith();
             verify(() => repository.getCharactersOnline(any())).called(1);
@@ -58,74 +57,79 @@ void main() {
               bloc.state.characters,
               equals(mockResponseWithMoreResults.results),
             );
-            expect(blocState.status, equals(MainStatus.success));
+            expect(blocState.status, equals(CharacterListPageStatus.success));
           },
         );
 
-        blocTest<MainPageBloc, MainPageState>(
+        blocTest<CharacterListBloc, CharacterListPageState>(
           'When there is data should append the new result',
-          build: () => MainPageBloc(
-            MainPageState(
-                mockResponseWithMoreResults.results, 1, MainStatus.success,
-                hasNextPage: true),
+          build: () => CharacterListBloc(
+            CharacterListPageState(
+              characters: mockResponseWithMoreResults.results,
+              page: 1,
+              status: CharacterListPageStatus.success,
+              hasMore: true,
+            ),
             repository,
             networkChecker,
           ),
-          act: (bloc) => bloc.add(MainPageFetch(2)),
+          act: (bloc) => bloc.add(OnEdgeHitEvent()),
           verify: (bloc) {
             expect(bloc.state.characters.length, equals(2));
             expect(bloc.state.page, equals(2));
           },
         );
 
-        blocTest<MainPageBloc, MainPageState>(
+        blocTest<CharacterListBloc, CharacterListPageState>(
           'When restablished internet connection should make another attempt',
-          build: () => MainPageBloc(
-              MainPageState(
-                [],
-                0,
-                MainStatus.failure,
-                hasNextPage: true,
-              ),
-              repository,
-              networkChecker),
-          act: (bloc) => bloc.add(NetworkChanged()),
+          build: () => CharacterListBloc(
+              errorEmptyCharacterListPageState, repository, networkChecker),
+          act: (bloc) => bloc.add(CharacterNetworkEvent.initial()),
           verify: (bloc) {
-            verify(() => repository.getCharactersOnline(0)).called(1);
+            verify(() => repository.getCharactersOnline(1)).called(1);
             verify(() => networkChecker.networkState).called(1);
-            expect(bloc.state.status, equals(MainStatus.success));
+            expect(bloc.state.status, equals(CharacterListPageStatus.success));
           },
         );
 
-        blocTest<MainPageBloc, MainPageState>(
+        blocTest<CharacterListBloc, CharacterListPageState>(
           'When offline then emit the offline status',
-          build: () => MainPageBloc(
-              InitialLoadingPageState(), repository, networkChecker),
+          build: () => CharacterListBloc(
+            emptyLoadingCharacterListPageState,
+            repository,
+            networkChecker,
+          ),
           setUp: () {
             when(() => networkChecker.networkState)
                 .thenAnswer((_) => Stream.value(false));
           },
-          act: (bloc) => bloc.add(NetworkChanged()),
+          act: (bloc) => bloc.add(CharacterNetworkEvent.initial()),
           verify: (bloc) {
             verify(() => networkChecker.networkState).called(1);
-            expect(bloc.state.status, equals(MainStatus.offline));
+            expect(bloc.state.status, equals(CharacterListPageStatus.offline));
           },
         );
       });
     });
 
     group('Given user has no internet', () {
-      blocTest<MainPageBloc, MainPageState>(
+      setUp(() {
+        when(() => repository.getCharactersOnline(any())).thenAnswer(
+          (_) => Future.error('No data'),
+        );
+      });
+
+      blocTest<CharacterListBloc, CharacterListPageState>(
         'Then should emit failure state',
-        build: () => MainPageBloc(
-          InitialLoadingPageState(),
+        build: () => CharacterListBloc(
+          emptyLoadingCharacterListPageState,
           repository,
           networkChecker,
         ),
-        act: (bloc) => bloc.add(MainPageFetch(1)),
+        act: (bloc) => bloc.add(CharacterListFetchEvent.initial()),
         verify: (bloc) {
           verify(() => repository.getCharactersOnline(any())).called(1);
-          expect(bloc.state.status, equals(MainStatus.failure));
+          expect(bloc.state.status, equals(CharacterListPageStatus.failure));
         },
       );
     });

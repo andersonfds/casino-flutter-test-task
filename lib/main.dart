@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import 'src/presentation/screens/character_screen.dart';
+import 'src/presentation/screens/character_list/character_list_screen.dart';
 
 const blueRickAndMorty = Color(0xFF1AADCB);
 const greenRickAndMorty = Color(0xFF00E001);
@@ -35,8 +35,17 @@ class MyApp extends StatelessWidget {
         ),
         splashColor: greenRickAndMorty.withOpacity(0.2),
         splashFactory: InkSparkle.constantTurbulenceSeedSplashFactory,
+        snackBarTheme: SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+          showCloseIcon: true,
+          contentTextStyle: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ),
-      home: CharactersScreen(),
+      home: CharacterListScreen(),
     );
   }
 }
