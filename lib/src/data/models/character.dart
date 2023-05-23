@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'character.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 class Character {
   @JsonKey(defaultValue: '')
   final String name;
@@ -20,6 +20,4 @@ class Character {
 
   factory Character.fromJson(Map<String, dynamic> json) =>
       _$CharacterFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CharacterToJson(this);
 }

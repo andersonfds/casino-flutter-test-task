@@ -21,7 +21,7 @@
                 "name": "Earth",
                 "url": "https://rickandmortyapi.com/api/location/20"
             },
-            "image": "https://rickandmortyapi.com/api/character/avatar/361.jpeg",
+            "image": "",
             "episode": [
                 "https://rickandmortyapi.com/api/episode/27"
             ],

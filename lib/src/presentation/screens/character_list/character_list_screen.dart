@@ -136,8 +136,8 @@ class _CharacterCardListView extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: Opacity(
-              opacity: loading ? 1 : 0,
+            child: Visibility(
+              visible: loading,
               child: LoadingDataView(),
             ),
           ),

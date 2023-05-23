@@ -11,7 +11,6 @@ enum CharacterListPageStatus {
 }
 
 extension CharacterListPageStatusX on CharacterListPageStatus {
-  bool get isInitial => this == CharacterListPageStatus.initial;
   bool get isSuccess => this == CharacterListPageStatus.success;
   bool get isFailure => this == CharacterListPageStatus.failure;
   bool get isLoading => this == CharacterListPageStatus.loading;

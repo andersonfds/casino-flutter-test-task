@@ -3,49 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import 'src/presentation/screens/character_list/character_list_screen.dart';
-
-const blueRickAndMorty = Color(0xFF1AADCB);
-const greenRickAndMorty = Color(0xFF00E001);
+import 'my_app.dart';
 
 void main() {
   MainDIModule().configure(GetIt.I);
   runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Test app',
-      scrollBehavior: CupertinoScrollBehavior(),
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: greenRickAndMorty,
-          brightness: Brightness.light,
-        ),
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-        ),
-        cardTheme: CardTheme(
-          clipBehavior: Clip.antiAlias,
-        ),
-        splashColor: greenRickAndMorty.withOpacity(0.2),
-        splashFactory: InkSparkle.constantTurbulenceSeedSplashFactory,
-        snackBarTheme: SnackBarThemeData(
-          behavior: SnackBarBehavior.floating,
-          showCloseIcon: true,
-          contentTextStyle: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-      home: CharacterListScreen(),
-    );
-  }
 }

@@ -14,23 +14,9 @@ PaginatedCharacters _$PaginatedCharactersFromJson(Map<String, dynamic> json) =>
       PaginationInfo.fromJson(json['info'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$PaginatedCharactersToJson(
-        PaginatedCharacters instance) =>
-    <String, dynamic>{
-      'results': instance.results,
-      'info': instance.info,
-    };
-
 PaginationInfo _$PaginationInfoFromJson(Map<String, dynamic> json) =>
     PaginationInfo(
       json['count'] as int,
       json['pages'] as int,
       json['next'] as String?,
     );
-
-Map<String, dynamic> _$PaginationInfoToJson(PaginationInfo instance) =>
-    <String, dynamic>{
-      'count': instance.count,
-      'pages': instance.pages,
-      'next': instance.next,
-    };
