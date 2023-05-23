@@ -1,3 +1,4 @@
+import 'package:casino_test/src/presentation/screens/character_details/character_details_screen.dart';
 import 'package:casino_test/src/presentation/screens/character_list/character_list_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +44,10 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: CharacterListScreen(),
+      routes: {
+        '/': (context) => CharacterListScreen(),
+        '/details': (context) => const CharacterDetailsScreen(),
+      },
     );
   }
 }

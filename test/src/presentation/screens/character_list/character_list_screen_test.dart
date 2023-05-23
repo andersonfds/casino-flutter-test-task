@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:casino_test/my_app.dart';
+import 'package:casino_test/src/data/models/character.dart';
 import 'package:casino_test/src/data/models/paginated.dart';
 import 'package:casino_test/src/data/providers/network_check_provider.dart';
 import 'package:casino_test/src/data/repository/characters_repository.dart';
+import 'package:casino_test/src/presentation/screens/character_details/character_details_screen.dart';
 import 'package:casino_test/src/presentation/widgets/character_card.dart';
 import 'package:casino_test/src/presentation/widgets/loading_center_widget.dart';
 import 'package:casino_test/src/presentation/widgets/no_internet_widget.dart';
@@ -110,7 +112,7 @@ void main() {
         // Assert
         verify(() => repository.getCharactersOnline(1)).called(1);
         verify(() => repository.getCharactersOnline(2)).called(1);
-        expect(find.byType(CharacterCard), findsAtLeastNWidgets(1));
+        expect(find.byType(CharacterDetailsScreen), findsAtLeastNWidgets(1));
       });
     });
   });
@@ -118,7 +120,18 @@ void main() {
 
 PaginatedCharacters _generateMultipleCharacters() {
   final fixture = readJsonFixture('character_response.json');
+  final results = fixture['results'] as List<dynamic>;
+
+  final charactersMap = List.generate(
+      10, (index) => <String, dynamic>{...results.first, 'id': index});
+
   final character = PaginatedCharacters.fromJson(fixture);
-  final characters = List.generate(10, (index) => character.results.first);
+  final characters = charactersMap
+      .cast<Map<dynamic, dynamic>>()
+      .map(
+        (characterMap) =>
+            Character.fromJson(characterMap as Map<String, dynamic>),
+      )
+      .toList();
   return PaginatedCharacters(characters, character.info);
 }

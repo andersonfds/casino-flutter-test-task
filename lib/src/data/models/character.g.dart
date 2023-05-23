@@ -11,4 +11,6 @@ Character _$CharacterFromJson(Map<String, dynamic> json) => Character(
       json['image'] as String? ?? '',
       json['gender'] as String? ?? '',
       json['status'] as String? ?? '',
+      json['species'] as String? ?? '',
+      json['id'] as int? ?? 0,
     );

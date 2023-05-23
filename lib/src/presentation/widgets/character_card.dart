@@ -18,7 +18,9 @@ class CharacterCard extends StatelessWidget {
       ),
       elevation: 0,
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.of(context).pushNamed('/details', arguments: character);
+        },
         child: Padding(
           padding: EdgeInsets.all(8.0),
           child: Row(
@@ -27,8 +29,7 @@ class CharacterCard extends StatelessWidget {
               SizedBox(
                 width: 100,
                 child: Hero(
-                  tag: character.image,
-                  transitionOnUserGestures: true,
+                  tag: character.id,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.all(Radius.circular(12)),
                     child: AspectRatio(
