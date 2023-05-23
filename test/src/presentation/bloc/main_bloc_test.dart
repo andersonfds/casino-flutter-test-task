@@ -1,5 +1,4 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:casino_test/src/data/models/character.dart';
 import 'package:casino_test/src/data/models/paginated.dart';
 import 'package:casino_test/src/data/providers/network_check_provider.dart';
 import 'package:casino_test/src/data/repository/characters_repository.dart';
@@ -10,10 +9,7 @@ import 'package:casino_test/src/presentation/bloc/main_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-const mockCharacter = Character('name', 'image', 'gender', 'species');
-final paginationInfo = PaginationInfo(10, 3, 'next');
-final mockResponseWithMoreResults =
-    PaginatedCharacters([mockCharacter], paginationInfo);
+import '../../../helpers/fixture.dart';
 
 class MockCharactersRepository extends Mock implements CharactersRepository {}
 
@@ -22,6 +18,13 @@ class MockNetworkCheckProvider extends Mock implements NetworkCheckProvider {}
 void main() {
   late MockCharactersRepository repository;
   late MockNetworkCheckProvider networkChecker;
+  late PaginatedCharacters mockResponseWithMoreResults;
+
+  setUpAll(() {
+    mockResponseWithMoreResults = PaginatedCharacters.fromJson(
+      readJsonFixture('character_response.json'),
+    );
+  });
 
   setUp(() {
     repository = MockCharactersRepository();
@@ -32,10 +35,12 @@ void main() {
     group('Given user has internet', () {
       group('When successfull api request', () {
         setUp(() {
-          when(() => repository.getCharactersOnline(any()))
-              .thenAnswer((_) async => mockResponseWithMoreResults);
-          when(() => networkChecker.networkState)
-              .thenAnswer((_) => Stream.value(true));
+          when(() => repository.getCharactersOnline(any())).thenAnswer(
+            (_) async => mockResponseWithMoreResults,
+          );
+          when(() => networkChecker.networkState).thenAnswer(
+            (_) => Stream.value(true),
+          );
         });
 
         blocTest<MainPageBloc, MainPageState>(
@@ -49,7 +54,10 @@ void main() {
           verify: (bloc) {
             final blocState = bloc.state.copyWith();
             verify(() => repository.getCharactersOnline(any())).called(1);
-            expect(bloc.state.characters, equals([mockCharacter]));
+            expect(
+              bloc.state.characters,
+              equals(mockResponseWithMoreResults.results),
+            );
             expect(blocState.status, equals(MainStatus.success));
           },
         );
@@ -57,7 +65,8 @@ void main() {
         blocTest<MainPageBloc, MainPageState>(
           'When there is data should append the new result',
           build: () => MainPageBloc(
-            MainPageState([mockCharacter], 1, MainStatus.success,
+            MainPageState(
+                mockResponseWithMoreResults.results, 1, MainStatus.success,
                 hasNextPage: true),
             repository,
             networkChecker,
