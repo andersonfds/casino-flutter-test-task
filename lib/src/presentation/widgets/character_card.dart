@@ -11,39 +11,56 @@ class CharacterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 50,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(12)),
-              child: Image.network(
-                character.image,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: Colors.grey.shade300,
-                  width: 50,
-                  height: 50,
+    return Card(
+      margin: const EdgeInsets.symmetric(
+        horizontal: 18.0,
+        vertical: 2,
+      ),
+      elevation: 0,
+      child: InkWell(
+        onTap: () {},
+        child: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 100,
+                child: Hero(
+                  tag: character.image,
+                  transitionOnUserGestures: true,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: Image.network(
+                        character.image,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Theme.of(context).highlightColor,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  character.name,
-                  style: Theme.of(context).textTheme.titleLarge,
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      character.name,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text('Gender: ${character.gender}'),
+                    Text('Status: ${character.status}'),
+                  ],
                 ),
-                Text('Gender: XX'),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

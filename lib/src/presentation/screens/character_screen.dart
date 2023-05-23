@@ -6,8 +6,10 @@ import 'package:casino_test/src/presentation/bloc/main_event.dart';
 import 'package:casino_test/src/presentation/bloc/main_state.dart';
 import 'package:casino_test/src/presentation/widgets/character_card.dart';
 import 'package:casino_test/src/presentation/widgets/endless_scrolling.dart';
+import 'package:casino_test/src/presentation/widgets/no_internet_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get_it/get_it.dart';
 
 @immutable
@@ -33,18 +35,25 @@ class _CharacterView extends StatefulWidget {
 }
 
 class __CharacterViewState extends State<_CharacterView> {
+  late MainPageBloc _bloc;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final bloc = BlocProvider.of<MainPageBloc>(context);
-    bloc.add(NetworkChanged());
-    bloc.add(MainPageFetch(1));
+    _bloc = BlocProvider.of<MainPageBloc>(context);
+    _bloc.add(NetworkChanged());
+    _bloc.add(MainPageFetch.initial());
+  }
+
+  void _onNetworkRetry() {
+    _bloc.add(MainPageFetch.initial());
   }
 
   void _setUpSnackBar(MainStatus status) {
     if (status == MainStatus.offline) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          behavior: SnackBarBehavior.floating,
           content: Text('No internet connection'),
           showCloseIcon: true,
         ),
@@ -57,16 +66,31 @@ class __CharacterViewState extends State<_CharacterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Hero(
+          tag: 'logo',
+          transitionOnUserGestures: true,
+          child: SvgPicture.asset(
+            'assets/images/logo_rnm.svg',
+            height: 40,
+            fit: BoxFit.fitHeight,
+          ),
+        ),
+      ),
       body: BlocConsumer<MainPageBloc, MainPageState>(
         listener: (context, state) {
           _setUpSnackBar(state.status);
         },
         builder: (blocContext, state) {
-          if (state is InitialLoadingPageState) {
-            return const _LoadingDataView();
+          if (state.characters.isNotEmpty) {
+            return _CharacterCardListView(state: state);
           }
 
-          return _CharacterCardListView(state: state);
+          if (state.status == MainStatus.failure) {
+            return NoInternetWidget(onRetry: _onNetworkRetry);
+          }
+
+          return const _LoadingDataView();
         },
       ),
     );
@@ -84,11 +108,15 @@ class _CharacterCardListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final characters = state.characters;
+    final hasNextPage = state.hasNextPage;
+    final isLoading = state.status == MainStatus.loading;
 
     return EndlessScrolling(
       onEdge: () async {
-        final bloc = BlocProvider.of<MainPageBloc>(context);
-        bloc.add(MainPageFetch(state.page + 1));
+        if (hasNextPage) {
+          final bloc = BlocProvider.of<MainPageBloc>(context);
+          bloc.add(MainPageFetch.next(state.next()));
+        }
       },
       child: CustomScrollView(
         slivers: [
@@ -106,7 +134,7 @@ class _CharacterCardListView extends StatelessWidget {
           SliverToBoxAdapter(
             child: Center(
               child: Opacity(
-                opacity: state.status == MainStatus.loading ? 1 : 0,
+                opacity: isLoading ? 1 : 0,
                 child: CircularProgressIndicator(),
               ),
             ),

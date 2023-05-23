@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:casino_test/src/data/models/character.dart';
+import 'package:casino_test/src/data/models/paginated.dart';
 import 'package:casino_test/src/data/providers/network_check_provider.dart';
 import 'package:casino_test/src/data/repository/characters_repository.dart';
 import 'package:casino_test/src/presentation/bloc/enum/main_status.dart';
@@ -9,7 +10,10 @@ import 'package:casino_test/src/presentation/bloc/main_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-const mockCharacter = Character('name', 'image');
+const mockCharacter = Character('name', 'image', 'gender', 'species');
+final paginationInfo = PaginationInfo(10, 3, 'next');
+final mockResponseWithMoreResults =
+    PaginatedCharacters([mockCharacter], paginationInfo);
 
 class MockCharactersRepository extends Mock implements CharactersRepository {}
 
@@ -29,7 +33,7 @@ void main() {
       group('When successfull api request', () {
         setUp(() {
           when(() => repository.getCharactersOnline(any()))
-              .thenAnswer((_) async => [mockCharacter]);
+              .thenAnswer((_) async => mockResponseWithMoreResults);
           when(() => networkChecker.networkState)
               .thenAnswer((_) => Stream.value(true));
         });
@@ -53,7 +57,8 @@ void main() {
         blocTest<MainPageBloc, MainPageState>(
           'When there is data should append the new result',
           build: () => MainPageBloc(
-            MainPageState([mockCharacter], 1, MainStatus.success),
+            MainPageState([mockCharacter], 1, MainStatus.success,
+                hasNextPage: true),
             repository,
             networkChecker,
           ),
@@ -66,8 +71,15 @@ void main() {
 
         blocTest<MainPageBloc, MainPageState>(
           'When restablished internet connection should make another attempt',
-          build: () => MainPageBloc(MainPageState([], 0, MainStatus.failure),
-              repository, networkChecker),
+          build: () => MainPageBloc(
+              MainPageState(
+                [],
+                0,
+                MainStatus.failure,
+                hasNextPage: true,
+              ),
+              repository,
+              networkChecker),
           act: (bloc) => bloc.add(NetworkChanged()),
           verify: (bloc) {
             verify(() => repository.getCharactersOnline(0)).called(1);
@@ -94,11 +106,6 @@ void main() {
     });
 
     group('Given user has no internet', () {
-      setUp(() {
-        when(() => repository.getCharactersOnline(any()))
-            .thenAnswer((_) async => null);
-      });
-
       blocTest<MainPageBloc, MainPageState>(
         'Then should emit failure state',
         build: () => MainPageBloc(

@@ -18,7 +18,7 @@ class MainDIModule {
     );
 
     getIt.registerLazySingleton<CharactersRepository>(
-      () => CharactersRepositoryImpl(getIt(), getIt()),
+      () => CharactersRepositoryImpl(getIt()),
     );
 
     getIt.registerLazySingleton<NetworkCheckProvider>(

@@ -20,6 +20,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   bloc_concurrency: ^0.2.2
   internet_connection_checker: ^1.0.0+1
+  flutter_svg: ^2.0.5
 
 dev_dependencies:
   flutter_test:
@@ -32,3 +33,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/

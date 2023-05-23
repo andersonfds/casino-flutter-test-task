@@ -12,6 +12,10 @@ class MainPageFetch extends MainPageEvent {
 
   MainPageFetch(this.page);
 
+  factory MainPageFetch.initial() => MainPageFetch(1);
+
+  factory MainPageFetch.next(int page) => MainPageFetch(page);
+
   @override
   List<Object?> get props => [page];
 }

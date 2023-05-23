@@ -47,12 +47,15 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       emit(state.copyWith(status: MainStatus.loading));
       final currentData = state.characters;
       final result = await _charactersRepo.getCharactersOnline(event.page);
+      final newCharacters = result.results;
 
-      if (result == null) {
-        throw Exception('No data');
-      }
-
-      emit(SuccessPageState(currentData + result, event.page));
+      emit(
+        SuccessPageState(
+          currentData + newCharacters,
+          event.page,
+          hasNextPage: result.info.hasNextPage,
+        ),
+      );
     } catch (_) {
       emit(state.copyWith(status: MainStatus.failure));
     }

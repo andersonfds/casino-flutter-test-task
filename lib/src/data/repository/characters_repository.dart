@@ -1,5 +1,5 @@
-import 'package:casino_test/src/data/models/character.dart';
+import '../models/paginated.dart';
 
 abstract class CharactersRepository {
-  Future<List<Character>?> getCharactersOnline(int page);
+  Future<PaginatedCharacters> getCharactersOnline(int page);
 }
