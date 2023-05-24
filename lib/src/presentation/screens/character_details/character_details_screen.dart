@@ -30,6 +30,7 @@ class _CharacterDetailsScreenState extends State<CharacterDetailsScreen> {
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.pin,
               title: RickAndMortyLogo(),
+              centerTitle: true,
               background: Hero(
                 tag: _character.id,
                 child: ClipRRect(
